@@ -535,7 +535,7 @@ function concluirModulo(modulo) {
     ui.modalOverlay.classList.add('visible');
     document.body.style.overflow = 'hidden';
 }
-
+ 
 function fecharModal() {
     ui.modalOverlay.classList.remove('visible');
     document.body.style.overflow = '';
