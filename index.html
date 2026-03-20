@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeLingo Premium</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- CodeMirror: Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+</head>
+<body>
+
+    <!-- Toast de XP -->
+    <div id="xp-toast" class="xp-toast" aria-live="polite"></div>
+
+    <!-- Modal de Conclusão de Módulo -->
+    <div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-box">
+            <div class="modal-icon">🏆</div>
+            <h2 id="modal-title">Módulo Concluído!</h2>
+            <p id="modal-message"></p>
+            <div class="modal-xp-badge" id="modal-xp-badge"></div>
+            <button id="modal-close-btn" class="btn-primary" aria-label="Fechar e ir para a trilha">
+                Ver Trilha <i class="fas fa-map-marked-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <header class="top-bar" role="banner">
+        <div class="brand" aria-label="CodeLingo Premium">
+            <i class="fas fa-crown gold-text" aria-hidden="true"></i> CodeLingo <span class="gold-text">Premium</span>
+        </div>
+        <div class="user-stats" role="status" aria-label="Suas estatísticas">
+            <span title="Sequência de dias"><i class="fas fa-bolt" aria-hidden="true"></i> <b id="streak-count">0</b></span>
+            <span title="Pontos de experiência"><i class="fas fa-star gold-text" aria-hidden="true"></i> <b id="xp-count">0</b> XP</span>
+        </div>
+    </header>
+
+    <nav class="tab-nav" role="tablist" aria-label="Navegação principal">
+        <button class="tab-btn active" data-target="tab-trilha" role="tab" aria-selected="true" aria-controls="tab-trilha">
+            <i class="fas fa-map-marked-alt" aria-hidden="true"></i> Trilha
+        </button>
+        <button class="tab-btn" data-target="tab-aulas" id="btn-aulas" role="tab" aria-selected="false" aria-controls="tab-aulas" disabled>
+            <i class="fas fa-book-open" aria-hidden="true"></i> Aulas
+        </button>
+        <button class="tab-btn" data-target="tab-exercicios" id="btn-exercicios" role="tab" aria-selected="false" aria-controls="tab-exercicios" disabled>
+            <i class="fas fa-laptop-code" aria-hidden="true"></i> Exercícios
+        </button>
+    </nav>
+
+    <main class="content-area" role="main">
+        <!-- ABA: TRILHA -->
+        <section id="tab-trilha" class="tab-pane active" role="tabpanel" aria-labelledby="tab-btn-trilha">
+            <div class="trilha-container">
+                <h2 class="section-title">Sua Jornada de Aprendizado</h2>
+                <p class="section-subtitle">Selecione um módulo desbloqueado para começar.</p>
+                <!-- Barra de progresso geral -->
+                <div class="progress-geral" aria-label="Progresso geral">
+                    <div class="progress-label">
+                        <span>Progresso Geral</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="progress-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar-aria">
+                        <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                    </div>
+                </div>
+                <div id="trilha-map" class="trilha-map" role="list">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ABA: AULAS -->
+        <section id="tab-aulas" class="tab-pane" role="tabpanel" aria-labelledby="btn-aulas">
+            <div class="aula-container">
+                <h1 id="aula-title" class="gold-text">Selecione uma aula na Trilha</h1>
+                <!-- Barra de progresso do módulo -->
+                <div class="modulo-progress" id="modulo-progress" style="display:none">
+                    <div class="modulo-progress-steps" id="modulo-progress-steps"></div>
+                </div>
+                <div id="aula-content" class="teoria-profunda">
+                    <!-- Conteúdo injetado via JS -->
+                </div>
+                <div class="aula-footer">
+                    <button id="go-to-exercises" class="btn-primary" aria-label="Ir para os exercícios deste módulo">
+                        Ir para os Exercícios <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABA: EXERCÍCIOS -->
+        <section id="tab-exercicios" class="tab-pane" role="tabpanel" aria-labelledby="btn-exercicios">
+            <div class="exercicios-layout">
+                <div class="ex-sidebar">
+                    <div class="ex-header">
+                        <h3 id="ex-title">Missão</h3>
+                        <div class="ex-progress-dots" id="ex-progress-dots" aria-label="Progresso do módulo">
+                            <!-- Pontos gerados via JS -->
+                        </div>
+                    </div>
+
+                    <div id="ex-instruction" class="ex-instruction" role="region" aria-label="Instrução do exercício">
+                        <!-- Instrução injetada via JS -->
+                    </div>
+
+                    <!-- Caixa de Dica -->
+                    <div id="hint-box" class="hint-box" role="alert" aria-live="polite">
+                        <div class="hint-header">
+                            <strong><i class="fas fa-lightbulb" aria-hidden="true"></i> Dica</strong>
+                            <button id="btn-close-hint" class="btn-close-hint" aria-label="Fechar dica" title="Fechar dica">
+                                <i class="fas fa-times" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <span id="hint-text"></span>
+                    </div>
+
+                    <!-- Área de Feedback Inline (NOVO) -->
+                    <div id="feedback-area" class="feedback-area" role="alert" aria-live="assertive" style="display:none">
+                        <span id="feedback-icon"></span>
+                        <span id="feedback-msg"></span>
+                    </div>
+
+                    <!-- Contador de tentativas -->
+                    <div class="tentativas-info" id="tentativas-info" aria-label="Tentativas restantes" style="display:none">
+                        <i class="fas fa-heart" aria-hidden="true"></i>
+                        <span id="tentativas-texto"></span>
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="action-buttons">
+                        <button id="btn-hint" class="btn-secondary" aria-label="Mostrar dica">
+                            <i class="fas fa-question-circle" aria-hidden="true"></i> Dica
+                        </button>
+                        <button id="run-code" class="btn-primary run-btn" aria-label="Validar código">
+                            <i class="fas fa-play" aria-hidden="true"></i> Validar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ex-workspace">
+                    <div class="editor-header">
+                        <span><i class="fas fa-code" aria-hidden="true"></i> Editor de Código</span>
+                        <button id="btn-reset" class="btn-reset" title="Resetar código inicial" aria-label="Resetar código para o início">
+                            <i class="fas fa-undo" aria-hidden="true"></i> Resetar
+                        </button>
+                    </div>
+                    <!-- O div.editor-wrap segura o CodeMirror com altura correta -->
+                    <div class="editor-wrap">
+                        <textarea id="code-editor" spellcheck="false" aria-label="Editor de código"></textarea>
+                    </div>
+
+                    <div class="editor-header preview-header">
+                        <span><i class="fas fa-eye" aria-hidden="true"></i> Resultado (Live Preview)</span>
+                    </div>
+                    <iframe id="live-preview" title="Visualização do resultado do seu código" sandbox="allow-scripts allow-same-origin"></iframe>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="curriculum.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
