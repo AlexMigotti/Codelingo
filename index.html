@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Luminous Scholar</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- CodeMirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- XP TOAST -->
+<div id="xp-toast" class="xp-toast" aria-live="polite"></div>
+
+<!-- MODAL CONCLUSÃO -->
+<div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-box">
+        <div class="modal-glow"></div>
+        <div class="modal-icon">🏆</div>
+        <h2 id="modal-title">Módulo Concluído!</h2>
+        <p id="modal-message"></p>
+        <div class="modal-xp-badge" id="modal-xp-badge"></div>
+        <button id="modal-close-btn" class="btn-primary" aria-label="Fechar">
+            Ver Trilha <i class="fas fa-map-marked-alt"></i>
+        </button>
+    </div>
+</div>
+
+<!-- HEADER FIXO -->
+<header class="ls-header" role="banner">
+    <div class="ls-header-left">
+        <div class="ls-avatar" id="ls-avatar-btn" title="Trocar trilha">
+            <i class="fas fa-user-astronaut"></i>
+        </div>
+        <div class="ls-brand">
+            <h1>The Luminous Scholar</h1>
+            <span id="scholar-level-label">Scholar Level 1</span>
+        </div>
+    </div>
+    <div class="ls-stats">
+        <div class="ls-stat-pill streak">
+            <i class="fas fa-fire"></i>
+            <span><b id="streak-count">0</b> Day Streak</span>
+        </div>
+        <div class="ls-stat-pill xp">
+            <i class="fas fa-star"></i>
+            <span><b id="xp-count">0</b> XP</span>
+        </div>
+    </div>
+</header>
+
+<!-- SELETOR DE TRILHA (modal slide-up) -->
+<div id="trilha-selector-overlay" class="ts-overlay" aria-hidden="true">
+    <div class="ts-panel" role="dialog" aria-label="Selecionar trilha de aprendizado">
+        <div class="ts-handle"></div>
+        <h3 class="ts-title">Escolha sua Trilha</h3>
+        <div class="ts-grid" id="ts-grid"></div>
+    </div>
+</div>
+
+<!-- CONTEÚDO PRINCIPAL -->
+<main class="ls-main" role="main">
+
+    <section id="tab-trilha" class="ls-pane active" role="tabpanel">
+        <div class="trilha-header">
+            <span class="trilha-path-label" id="trilha-path-label">Current Path</span>
+            <h2 class="trilha-path-title" id="trilha-path-title">Selecione uma trilha</h2>
+        </div>
+        <div class="ls-progress-wrap">
+            <div class="ls-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar-aria">
+                <div class="ls-progress-fill" id="progress-bar-fill"></div>
+            </div>
+            <span class="ls-progress-pct" id="progress-text">0%</span>
+        </div>
+        <div id="trilha-map" class="trilha-map" role="list"></div>
+    </section>
+
+    <section id="tab-aulas" class="ls-pane" role="tabpanel">
+        <div class="aula-container">
+            <div class="aula-breadcrumb" id="aula-breadcrumb">
+                <span id="aula-modulo-label">—</span>
+            </div>
+            <h1 id="aula-title" class="aula-title">Selecione um módulo na Trilha</h1>
+            <div class="modulo-steps" id="modulo-progress" style="display:none">
+                <div id="modulo-progress-steps" class="modulo-progress-steps"></div>
+            </div>
+            <div id="aula-content" class="teoria"></div>
+            <div class="aula-footer">
+                <button id="go-to-exercises" class="btn-primary">
+                    Ir para os Exercícios <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="tab-exercicios" class="ls-pane ls-pane--workspace" role="tabpanel">
+        <div class="ws-layout">
+            <div class="ws-mission">
+                <div class="ws-mission-header">
+                    <div class="ws-mission-meta">
+                        <span class="ws-mission-badge" id="ws-mission-badge">Missão 1</span>
+                        <div class="ws-dots" id="ex-progress-dots"></div>
+                    </div>
+                    <div class="ws-mission-title-row">
+                        <i class="fas fa-brain ws-brain-icon"></i>
+                        <h3 id="ex-title">Desafio</h3>
+                    </div>
+                </div>
+                <div id="ex-instruction" class="ws-instruction" role="region" aria-label="Instrução"></div>
+                <div id="hint-box" class="ws-hint" role="alert" aria-live="polite">
+                    <div class="ws-hint-header">
+                        <span><i class="fas fa-lightbulb"></i> Dica</span>
+                        <button id="btn-close-hint" class="ws-hint-close" aria-label="Fechar dica">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="hint-text" class="ws-hint-body"></div>
+                </div>
+                <div id="feedback-area" class="ws-feedback" role="alert" aria-live="assertive" style="display:none">
+                    <span id="feedback-icon"></span>
+                    <span id="feedback-msg"></span>
+                </div>
+                <div class="ws-tentativas" id="tentativas-info" style="display:none">
+                    <i class="fas fa-heart"></i>
+                    <span id="tentativas-texto"></span>
+                </div>
+                <div class="ws-actions">
+                    <button id="btn-hint" class="btn-glass" aria-label="Ver dica">
+                        <i class="fas fa-question-circle"></i> Dica
+                    </button>
+                    <button id="btn-reset" class="btn-ghost" aria-label="Resetar código">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button id="run-code" class="btn-primary ws-run-btn" aria-label="Validar código">
+                        <i class="fas fa-play"></i> Validar
+                    </button>
+                </div>
+            </div>
+            <div class="ws-editor-panel">
+                <div class="ws-editor-toolbar">
+                    <div class="ws-dots-mac">
+                        <span class="mac-dot red"></span>
+                        <span class="mac-dot amber"></span>
+                        <span class="mac-dot green"></span>
+                    </div>
+                    <span class="ws-filename" id="ws-filename">index.html</span>
+                </div>
+                <div class="ws-editor-wrap">
+                    <textarea id="code-editor" spellcheck="false" aria-label="Editor de código"></textarea>
+                </div>
+                <div class="ws-preview-header">
+                    <i class="fas fa-eye"></i> Live Preview
+                </div>
+                <iframe id="live-preview" title="Preview do código" sandbox="allow-scripts allow-same-origin"></iframe>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<nav class="ls-nav" role="tablist" aria-label="Navegação">
+    <button class="ls-nav-btn active" data-target="tab-trilha" role="tab" aria-selected="true">
+        <i class="fas fa-map-marked-alt"></i>
+        <span>Trilha</span>
+    </button>
+    <button class="ls-nav-btn" data-target="tab-aulas" id="btn-aulas" role="tab" aria-selected="false" disabled>
+        <i class="fas fa-book-open"></i>
+        <span>Aulas</span>
+    </button>
+    <button class="ls-nav-btn" data-target="tab-exercicios" id="btn-exercicios" role="tab" aria-selected="false" disabled>
+        <i class="fas fa-code"></i>
+        <span>Workspace</span>
+    </button>
+</nav>
+
+<!-- Carregamento dos currículos -->
+<script src="curriculum.js"></script>
+<script src="curriculum_python.js"></script>
+<script src="curriculum_html.js"></script>
+<script src="curriculum_css.js"></script>
+<script src="curriculum_js.js"></script>
+<script src="curriculum_cpp.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
